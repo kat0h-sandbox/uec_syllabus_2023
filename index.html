@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <title>シラバス検索</title>
+</head>
+
+<body>
+  <input type="text" oninput="" id="inputarea">
+  <div>
+    <table border="1">
+      <thead>
+        <tr>
+          <td>No.</td>
+          <td>学期</td>
+          <td>開講</td>
+          <td>曜日・時限</td>
+          <td>時間割コード</td>
+          <td>科目</td>
+          <td>担当教員</td>
+          <td>科目コード</td>
+        </tr>
+      </thead>
+      <tbody id="table_body">
+      </tbody>
+    </table>
+  </div>
+  <script>
+    var classdata;
+    var inputarea = document.getElementById("inputarea");
+
+    fetch('list.json')
+      .then(response => response.json())
+      .then(data => onfetch(data));
+
+    function onfetch(data) {
+      classdata = data;
+      inputarea.oninput = drawTable;
+      drawTable();
+    }
+
+    function filter(data) {
+      query = inputarea.value;
+      if (query == "") {
+        return data;
+      };
+      pattern = new RegExp(query, "i");
+      return data.filter((d) => pattern.test(d[7]));
+    }
+
+    function drawTable() {
+      console.log("fire");
+      tbody = document.getElementById("table_body");
+      while(tbody.firstChild){
+        tbody.removeChild(tbody.firstChild);
+      } 
+      filter(classdata)
+        .forEach(element => {
+        newRow = document.createElement("tr");
+
+        element.forEach(d => {
+          cell = document.createElement("td");
+          cell.textContent = d;
+          newRow.appendChild(cell);
+        })
+
+        tbody.appendChild(newRow);
+      });
+    }
+  </script>
+</body>
+
+</html>
